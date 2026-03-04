@@ -18,6 +18,11 @@ export interface EpicImage {
         y: number;
         z: number;
     };
+    lunar_j2000_position: {      // posición de la Luna en espacio
+        x: number;
+        y: number;
+        z: number;
+    };
     sun_j2000_position: {
         x: number;
         y: number;
@@ -28,7 +33,14 @@ export interface EpicImage {
         q1: number;
         q2: number;
         q3: number;
-    };   
+    };
+    coords: {                    // objeto coords completo que devuelve la API
+        centroid_coordinates: { lat: number; lon: number };
+        dscovr_j2000_position: { x: number; y: number; z: number };
+        lunar_j2000_position:  { x: number; y: number; z: number };
+        sun_j2000_position:    { x: number; y: number; z: number };
+        attitude_quaternions:  { q0: number; q1: number; q2: number; q3: number };
+    };
 }
 
 export interface EpicImageResponse extends EpicImage {
@@ -60,7 +72,7 @@ export class NasaService {
 
     async getLatestImages(collection: string = 'natural'): Promise<EpicImageResponse[]> {
         try {
-            const url = `${this.baseUrl}/${collection}?api_key=${this.apikey}`;
+            const url = `${this.baseUrl}/${collection}`;
             const response = await firstValueFrom(
                 this.httpService.get<EpicImage[]>(url)
             );
@@ -71,7 +83,7 @@ export class NasaService {
             }));
 
         } catch (error) {
-            throw new HttpException (
+            throw new HttpException(
                 'Error al obtener imágenes',
                 HttpStatus.BAD_GATEWAY,
             );
@@ -80,7 +92,7 @@ export class NasaService {
 
     async getAvailableDates(collection: string = 'natural'): Promise<{ date: string }[]> {
         try {
-            const url = `${this.baseUrl}/${collection}/all?api_key=${this.apikey}`;
+            const url = `${this.baseUrl}/${collection}/all`;
             const response = await firstValueFrom(
                 this.httpService.get<{ date: string }[]>(url),
             );
@@ -97,7 +109,7 @@ export class NasaService {
 
     async getImagesByDate(date: string, collection: string = 'natural'): Promise<EpicImageResponse[]> {
         try {
-            const url = `${this.baseUrl}/${collection}/date/${date}?api_key=${this.apikey}`;
+            const url = `${this.baseUrl}/${collection}/date/${date}`;
             const response = await firstValueFrom(
                 this.httpService.get<EpicImage[]>(url),
             );
